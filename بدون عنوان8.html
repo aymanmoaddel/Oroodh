@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>متجر عصري</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Basic Reset and Body Styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      direction: rtl;
+      background-color: #eef2f7; /* Softer background */
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Header Styling */
+    header {
+      background-color: #34495e; /* Dark header */
+      color: white;
+      padding: 15px 25px;
+      font-size: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 100%; /* Explicitly 100% width */
+      box-sizing: border-box; /* Include padding in width */
+    }
+
+    .header-cart-indicator {
+        display: flex;
+        align-items: center;
+        font-size: 16px;
+    }
+
+    /* Category Filter Section (New Full-Width Area) */
+    .category-filter-section {
+        background-color: #4a6572; /* Matching sidebar color */
+        color: white;
+        padding: 15px 25px;
+        width: 100%; /* 100% width */
+        box-sizing: border-box;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        position: sticky; /* Optional: make filter sticky below header */
+        top: var(--header-height, 70px); /* Position below header */
+        z-index: 90; /* Below header, above main content */
+    }
+
+     .category-filter-section .filter-controls {
+         max-width: 1200px; /* Keep internal max-width for content readability on very wide screens */
+         margin: 0 auto; /* Center internal content */
+     }
+
+
+    .category-filter-section #searchInput {
+      width: 100%; /* Full width within its container */
+      padding: 12px;
+      font-size: 15px;
+      border-radius: 6px;
+      border: 1px solid #7f8c8d;
+      background-color: #ecf0f1;
+      color: #34495e;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+    }
+
+    /* Category Header (Clickable in the new section) */
+    .category-filter-section h3 {
+      margin-top: 0;
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #ecf0f1;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 10px;
+      cursor: pointer;
+    }
+
+    /* Category List (Toggleable in the new section) */
+    .category-filter-section ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 0;
+      display: none; /* Initially hidden */
+      transition: max-height 0.5s ease-in-out; /* Smooth transition for dropdown */
+      max-height: 0; /* Start with height 0 for transition */
+      overflow: hidden; /* Hide overflowing content during transition */
+    }
+
+     .category-filter-section ul.open {
+         max-height: 500px; /* Adjust based on max possible height */
+         display: block; /* Show the list when open */
+     }
+
+
+    /* Category List Item Styling (Enhanced) */
+    .category-filter-section li {
+      margin: 8px 0;
+      cursor: pointer;
+      padding: 10px 15px;
+      border-radius: 6px;
+      transition: background 0.3s ease-in-out, color 0.3s ease-in-out, transform 0.2s ease; /* Added transform transition */
+      color: #dcdde1;
+      font-size: 15px;
+      border-right: 4px solid transparent; /* Subtle border effect */
+    }
+
+    .category-filter-section li:hover {
+      background-color: rgba(255,255,255,0.1); /* Subtle hover background */
+      color: white;
+      transform: translateX(5px); /* Slide effect on hover */
+      border-right-color: #2ecc71; /* Highlight border on hover */
+    }
+
+    .category-filter-section li.active {
+        background-color: rgba(255,255,255,0.2); /* Slightly more prominent active background */
+        color: white;
+        font-weight: bold;
+        border-right-color: #2ecc71; /* Highlight border for active */
+    }
+
+
+    /* Main Content Area (Full Width Below Filters) */
+    .main-content-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px; /* Keep padding for inner content */
+        /* Removed max-width and margin: 0 auto; to make it full width */
+    }
+
+
+    .sorting-controls {
+        margin: 0 0 20px 0;
+        text-align: left;
+        padding: 0;
+    }
+
+    .sorting-controls label {
+        font-weight: bold;
+        margin-left: 10px;
+        color: #555;
+    }
+
+    .sorting-controls select {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+    }
+
+     .sorting-controls select:focus {
+         outline: none;
+         border-color: #2980b9;
+     }
+
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* Product Card Styling */
+    .product-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 250px;
+      text-align: center;
+      padding: 10px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .product-image {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .product-details {
+      flex-grow: 1;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .product-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #34495e;
+    }
+
+    .product-price {
+      color: #27ae60;
+      margin: 8px 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .qty-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .qty-controls button {
+      background: #2980b9;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 18px;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    .qty-controls button:hover {
+      background: #1f6391;
+    }
+
+    .qty-controls span.qty, .qty-controls span.qty-cart-value {
+      min-width: 40px;
+      text-align: center;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 3px 8px;
+      background: #fdfdfd;
+      display: inline-block;
+      line-height: 1.4;
+      transition: border-color 0.3s ease;
+    }
+
+    .qty-controls span.qty:focus, .qty-controls span.qty-cart-value:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+
+    .qty-controls span.qty-cart-value {
+        margin: 0 5px;
+    }
+
+    /* Cart and Delivery Box Styling */
+    .cart-box, .delivery-info-box {
+      width: 100%;
+      max-width: 800px; /* Keep max-width and centering for these sections */
+      margin: 20px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid #eee;
+    }
+
+    .cart-box h3, .delivery-info-box h3 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cart-item .item-details {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        min-width: 150px;
+    }
+
+    .cart-item .item-details img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-left: 15px;
+    }
+
+    .cart-item .item-details span {
+        font-weight: bold;
+        color: #34495e;
+    }
+
+
+    .cart-item > div:nth-child(2) {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .cart-summary {
+      font-weight: bold;
+      margin-top: 20px;
+      text-align: center;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+
+    .remove-btn {
+      color: #e74c3c;
+      cursor: pointer;
+      transition: color 0.2s;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .remove-btn:hover {
+      color: #c0392b;
+    }
+
+    .cart-highlight {
+      animation: highlight 0.5s ease-in-out;
+    }
+
+    @keyframes highlight {
+      0% { background-color: transparent; }
+      50% { background-color: rgba(170, 255, 170, 0.5); }
+      100% { background-color: transparent; }
+    }
+
+    /* Delivery Info Styles */
+    .delivery-info-box {
+        margin-top: 30px;
+        display: none;
+    }
+
+    .delivery-summary {
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 15px;
+    }
+
+    .delivery-summary-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .delivery-item-image {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-left: 15px;
+    }
+
+    .delivery-item-details {
+        flex-grow: 1;
+    }
+
+    .delivery-item-details div {
+        margin-bottom: 3px;
+    }
+
+    .delivery-item-name {
+        font-weight: bold;
+        color: #34495e;
+    }
+
+    .delivery-item-qty-price {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .delivery-fees {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px dashed #ccc;
+        font-weight: bold;
+        color: #555;
+    }
+
+
+    .delivery-info-box form div {
+        margin-bottom: 15px;
+    }
+
+    .delivery-info-box label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #34495e;
+    }
+
+    .delivery-info-box input[type="text"] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: border-color 0.3s ease;
+    }
+
+    .delivery-info-box input[type="text"]:focus {
+        outline: none;
+        border-color: #3498db;
+    }
+
+
+    .checkout-btn-container {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .checkout-btn {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .checkout-btn:hover {
+        background-color: #229954;
+    }
+
+    /* Pagination Styling */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px; /* Increased margin top */
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        padding-top: 20px; /* Add padding top */
+        border-top: 1px solid #ddd; /* Add subtle top border */
+    }
+
+    .pagination button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        margin: 0 8px; /* Increased margin between buttons/numbers */
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-size: 14px;
+    }
+
+    .pagination button:hover:not(:disabled) {
+        background-color: #2980b9;
+    }
+
+    .pagination button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .pagination .page-number {
+        padding: 8px 12px;
+        margin: 0 5px; /* Increased margin between page numbers */
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        font-size: 14px;
+    }
+
+     .pagination .page-number:hover {
+         background-color: #f0f0f0;
+     }
+
+     .pagination .page-number.active {
+         background-color: #2980b9;
+         color: white;
+         border-color: #2980b9;
+         font-weight: bold;
+     }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .category-filter-section {
+            position: static;
+            padding: 15px;
+        }
+         .category-filter-section .filter-controls {
+             max-width: 100%;
+         }
+         .main-content-area {
+             padding: 15px;
+         }
+
+         .product-card {
+            width: calc(50% - 20px);
+            max-width: 300px;
+         }
+         .cart-box, .delivery-info-box {
+             padding: 20px;
+         }
+         .cart-item {
+             flex-direction: column;
+             align-items: flex-start;
+         }
+         .cart-item .item-details,
+         .cart-item > div:nth-child(2),
+         .cart-item > div:nth-child(3),
+         .remove-btn {
+             width: 100%;
+             margin-right: 0;
+             margin-bottom: 10px;
+         }
+          .cart-item .item-details img {
+              margin-left: 0;
+              margin-right: 10px;
+          }
+           .cart-item > div:nth-child(2) {
+               justify-content: center;
+           }
+    }
+
+     @media (max-width: 480px) {
+         .product-card {
+             width: 100%;
+         }
+         .pagination button, .pagination .page-number {
+             margin: 5px;
+         }
+          header {
+              font-size: 18px;
+              padding: 10px 15px;
+          }
+          .header-cart-indicator {
+              font-size: 14px;
+          }
+           .category-filter-section {
+               padding: 10px 15px;
+           }
+            .category-filter-section h3 {
+                font-size: 18px;
+            }
+            .category-filter-section li {
+                font-size: 14px;
+            }
+     }
+
+  </style>
+</head>
+<body>
+<header>
+  <span>متجر عصري</span>
+  <div class="header-cart-indicator">
+    <div id="cartIndicator">السلة: <span id="totalItems">0</span> منتج - <span id="totalPrice">0</span> $</div>
+  </div>
+</header>
+
+<div class="category-filter-section">
+    <div class="filter-controls">
+        <input type="text" id="searchInput" placeholder="ابحث في الأقسام..." onkeyup="handleSearch()">
+        <h3 id="categoryHeader">الأقسام</h3>
+        <ul id="categoryList">
+          <li onclick="filterCategory('الكترونيات', this)" data-category="الكترونيات">إلكترونيات</li>
+          <li onclick="filterCategory('مكياج', this)" data-category="مكياج">مكياج</li>
+          <li onclick="filterCategory('ازياء', this)" data-category="ازياء">أزياء</li>
+          <li onclick="filterCategory('العاب', this)" data-category="العاب">ألعاب</li>
+          <li onclick="filterCategory('all', this)" data-category="all" class="active">الكل</li>
+        </ul>
+    </div>
+</div>
+
+<div class="main-content-area">
+    <div class="sorting-controls">
+        <label for="sortSelect">ترتيب حسب:</label>
+        <select id="sortSelect" onchange="handleSorting()">
+            <option value="default">الاختيار الافتراضي</option>
+            <option value="price-asc">السعر: من الأقل للأعلى</option>
+            <option value="price-desc">السعر: من الأعلى للأقل</option>
+            <option value="popularity">الأكثر مبيعًا</option>
+             <option value="newest">الأحدث للأقدم</option>
+        </select>
+    </div>
+    <div class="container" id="productContainer">
+    </div>
+     <div class="pagination" id="paginationControls">
+        </div>
+</div>
+
+<div class="cart-box">
+  <h3>سلة المشتريات</h3>
+  <div id="cartItems"></div>
+  <div class="cart-summary">المجموع: <span id="totalPriceBox">0</span> $</div>
+    <div class="checkout-btn-container">
+        <button class="checkout-btn" id="showDeliveryFormBtn">المتابعة لإتمام الطلب</button>
+    </div>
+</div>
+
+<div class="delivery-info-box" id="deliveryInfoBox">
+    <h3>ملخص الطلب ومعلومات التوصيل</h3>
+    <div id="deliverySummary" class="delivery-summary">
+        </div>
+
+    <form id="deliveryForm">
+        <div>
+            <label for="fullName">الاسم الكامل:</label>
+            <input type="text" id="fullName" name="fullName" required>
+        </div>
+        <div>
+            <label for="address">العنوان:</label>
+            <input type="text" id="address" name="address" required>
+        </div>
+        <div>
+            <label for="city">المدينة:</label>
+            <input type="text" id="city" name="city" required>
+        </div>
+        <div>
+            <label for="phone">رقم الهاتف:</label>
+            <input type="text" id="phone" name="phone" required>
+        </div>
+        <div>
+            <button type="submit" class="checkout-btn">تأكيد الطلب</button>
+        </div>
+    </form>
+</div>
+
+<script>
+  const products = [
+    { id: 1, name: "موبايل ذكي", price: 250, category: "الكترونيات", image: "https://picsum.photos/id/1010/250/160", popularity: 50 },
+    { id: 2, name: "لابتوب", price: 800, category: "الكترونيات", image: "https://picsum.photos/id/1005/250/160", popularity: 30 },
+    { id: 3, name: "سماعة بلوتوث", price: 60, category: "الكترونيات", image: "https://picsum.photos/id/1040/250/160", popularity: 70 },
+    { id: 4, name: "روج أحمر", price: 20, category: "مكياج", image: "https://picsum.photos/id/103/250/160", popularity: 120 },
+    { id: 5, name: "كحل عيون", price: 15, category: "مكياج", image: "https://picsum.photos/id/1062/250/160", popularity: 90 },
+    { id: 6, name: "كريم أساس", price: 35, category: "مكياج", image: "https://picsum.photos/id/1050/250/160", popularity: 80 },
+    { id: 7, name: "فستان صيفي", price: 90, category: "ازياء", image: "https://picsum.photos/id/1011/250/160", popularity: 60 },
+    { id: 8, name: "قميص رجالي", price: 55, category: "ازياء", image: "https://picsum.photos/id/1012/250/160", popularity: 40 },
+    { id: 9, name: "حذاء جلد", price: 120, category: "ازياء", image: "https://picsum.photos/id/1013/250/160", popularity: 35 },
+    { id: 10, name: "لعبة سيارة", price: 30, category: "العاب", image: "https://picsum.photos/id/1020/250/160", popularity: 100 },
+    { id: 11, name: "دمية", price: 25, category: "العاب", image: "https://picsum.photos/id/1021/250/160", popularity: 95 },
+    { id: 12, name: "مكعبات بناء", price: 40, category: "العاب", image: "https://picsum.photos/id/1022/250/160", popularity: 85 },
+    { id: 13, name: "كاميرا رقمية", price: 300, category: "الكترونيات", image: "https://picsum.photos/id/237/250/160", popularity: 45 },
+    { id: 14, name: "نظارات شمسية", price: 45, category: "ازياء", image: "https://picsum.photos/id/846/250/160", popularity: 75 },
+    { id: 15, name: "حقيبة يد", price: 75, category: "ازياء", image: "https://picsum.photos/id/1084/250/160", popularity: 65 },
+    { id: 16, name: "مجموعة مكياج", price: 50, category: "مكياج", image: "https://picsum.photos/id/1067/250/160", popularity: 110 },
+    { id: 17, name: "ساعة ذكية", price: 150, category: "الكترونيات", image: "https://picsum.photos/id/1073/250/160", popularity: 55 },
+    { id: 18, name: "كرة قدم", price: 20, category: "العاب", image: "https://picsum.photos/id/1077/250/160", popularity: 88 },
+    { id: 19, name: "جاكيت شتوي", price: 110, category: "ازياء", image: "https://picsum.photos/id/1080/250/160", popularity: 52 },
+    { id: 20, name: "سماعات رأس", price: 95, category: "الكترونيات", image: "https://picsum.photos/id/1016/250/160", popularity: 68 },
+    { id: 21, name: "طائرة بدون طيار", price: 500, category: "الكترونيات", image: "https://picsum.photos/id/237/250/160?grayscale", popularity: 25 },
+    { id: 22, name: "حذاء رياضي", price: 85, category: "ازياء", image: "https://picsum.photos/id/1024/250/160", popularity: 78 },
+    { id: 23, name: "مجموعة أدوات مكياج", price: 40, category: "مكياج", image: "https://picsum.photos/id/1069/250/160", popularity: 85 }
+  ];
+
+  const productsPerPage = 10;
+  let currentPage = 1;
+
+  let cart = {};
+  const cartIndicator = document.getElementById('cartIndicator');
+  const deliveryInfoBox = document.getElementById('deliveryInfoBox');
+  const showDeliveryFormBtn = document.getElementById('showDeliveryFormBtn');
+  const deliveryForm = document.getElementById('deliveryForm');
+  const deliverySummaryDiv = document.getElementById('deliverySummary');
+  const sortSelect = document.getElementById('sortSelect');
+  const paginationControls = document.getElementById('paginationControls');
+
+  const categoryHeader = document.getElementById('categoryHeader');
+  const categoryList = document.getElementById('categoryList');
+  const categoryFilterSection = document.querySelector('.category-filter-section');
+
+
+  let currentCategory = "all";
+  let currentSort = "default";
+  let filteredProducts = [];
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const headerElem = document.querySelector('header');
+
+    document.documentElement.style.setProperty('--header-height', headerElem.offsetHeight + 'px');
+
+    categoryList.style.display = 'none';
+    categoryList.style.maxHeight = '0';
+
+
+    const initialActiveElement = document.querySelector('#categoryList li[data-category="all"]');
+     if (initialActiveElement) {
+        filterCategory('all', initialActiveElement);
+     } else {
+         filterCategory('all');
+     }
+
+    updateCartDisplay();
+
+    categoryHeader.addEventListener('click', function() {
+        const isHidden = categoryList.style.display === 'none';
+        if (isHidden) {
+             categoryList.style.display = 'block';
+             categoryList.style.maxHeight = categoryList.scrollHeight + 'px';
+             categoryList.classList.add('open');
+        } else {
+             categoryList.style.maxHeight = '0';
+             categoryList.classList.remove('open');
+             setTimeout(() => {
+                 categoryList.style.display = 'none';
+             }, 500);
+        }
+    });
+
+     document.addEventListener('click', function(event) {
+         if (!categoryFilterSection.contains(event.target) && categoryList.style.display === 'block') {
+              categoryList.style.maxHeight = '0';
+              categoryList.classList.remove('open');
+              setTimeout(() => {
+                  categoryList.style.display = 'none';
+              }, 500);
+         }
+     });
+     categoryList.addEventListener('click', function(event) {
+          event.stopPropagation();
+     });
+
+
+  });
+
+
+  function displayProducts(searchTerm = "") {
+    const productContainer = $("#productContainer");
+    productContainer.html("");
+
+    let productsToFilter = [...products];
+
+    if (currentCategory !== "all") {
+      productsToFilter = productsToFilter.filter(p => p.category === currentCategory);
+    }
+
+    if (searchTerm) {
+      const lowerCaseSearchTerm = searchTerm.toLowerCase();
+      productsToFilter = productsToFilter.filter(p =>
+        p.name.toLowerCase().includes(lowerCaseSearchTerm)
+      );
+    }
+
+    filteredProducts = sortProducts(productsToFilter, currentSort);
+
+
+    const totalProducts = filteredProducts.length;
+    const totalPages = Math.ceil(totalProducts / productsPerPage);
+
+    if (currentPage > totalPages && totalPages > 0) {
+        currentPage = totalPages;
+    } else if (currentPage <= 0 && totalProducts > 0) {
+        currentPage = 1;
+    } else if (totalProducts === 0) {
+         currentPage = 0;
+    }
+
+
+    const startIndex = (currentPage - 1) * productsPerPage;
+    const endIndex = startIndex + productsPerPage;
+
+    const productsOnPage = filteredProducts.slice(startIndex, endIndex);
+
+
+    if (productsOnPage.length === 0 && totalProducts > 0) {
+         currentPage = 1;
+         displayProducts(searchTerm);
+         return;
+    }
+
+
+    if (totalProducts === 0) {
+        productContainer.html("<p style='text-align:center; width:100%;'>لا توجد منتجات تطابق بحثك أو الفئة المحددة.</p>");
+        paginationControls.innerHTML = '';
+        return;
+    }
+
+
+    let html = productsOnPage.map(p => {
+      let currentQtyInCartOrPreferred = (cart[p.id] && cart[p.id].qty > 0) ? cart[p.id].qty : 0;
+      return `
+      <div class="product-card" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}">
+        <div class="product-image" style="background-image: url('${p.image}')"></div>
+        <div class="product-details">
+          <div class="product-name">${p.name}</div>
+          <div class="product-price">${p.price}$</div>
+          <div class="qty-controls">
+            <button class="qty-minus" data-id="${p.id}">-</button>
+            <span class="qty" contenteditable="true" data-product-id="${p.id}">${currentQtyInCartOrPreferred}</span>
+            <button class="qty-plus" data-id="${p.id}">+</button>
+          </div>
+        </div>
+      </div>
+    `}).join("");
+    productContainer.html(html);
+
+    renderPagination(totalPages, currentPage);
+  }
+
+  function sortProducts(productsArray, criteria) {
+      let sortedProducts = [...productsArray];
+
+      switch (criteria) {
+          case 'price-asc':
+              sortedProducts.sort((a, b) => a.price - b.price);
+              break;
+          case 'price-desc':
+              sortedProducts.sort((a, b) => b.price - a.price);
+              break;
+          case 'popularity':
+              sortedProducts.sort((a, b) => b.popularity - a.popularity);
+              break;
+          case 'newest':
+              sortedProducts.sort((a, b) => b.id - a.id);
+              break;
+          case 'default':
+          default:
+              sortedProducts.sort((a, b) => a.id - b.id);
+              break;
+      }
+      return sortedProducts;
+  }
+
+  function renderPagination(totalPages, currentPage) {
+      let paginationHtml = '';
+      if (totalPages > 1) {
+          paginationHtml += `<button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>السابق</button>`;
+
+          for (let i = 1; i <= totalPages; i++) {
+              paginationHtml += `<span class="page-number ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</span>`;
+          }
+
+          paginationHtml += `<button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>التالي</button>`;
+      }
+      paginationControls.innerHTML = paginationHtml;
+  }
+
+  function goToPage(pageNumber) {
+      if (pageNumber > 0 && pageNumber <= Math.ceil(filteredProducts.length / productsPerPage)) {
+          currentPage = pageNumber;
+          displayProducts($("#searchInput").val());
+          $('#productContainer').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+  }
+
+
+  function updateCartDisplay() {
+    let html = '';
+    let totalItems = 0, totalPrice = 0;
+
+    for (let id in cart) {
+      if (cart[id].qty > 0) {
+        const item = cart[id];
+        const product = getProductById(parseInt(id));
+
+        if (product) {
+            totalItems += item.qty;
+            totalPrice += item.qty * item.price;
+
+            html += `
+              <div class="cart-item" data-id="${id}">
+                <div class="item-details">
+                    <img src="${product.image}" alt="${item.name}">
+                    <span>${item.name}</span>
+                </div>
+                <div class="qty-controls">
+                  <button class="qty-minus-cart" data-id="${id}">-</button>
+                  <span class="qty-cart-value" contenteditable="true" data-id="${id}" data-current-qty="${item.qty}">${item.qty}</span>
+                  <button class="qty-plus-cart" data-id="${id}">+</button>
+                </div>
+                <div>${(item.qty * item.price).toFixed(2)}$</div>
+                <div class="remove-btn" onclick="removeFromCart(${id})">×</div>
+              </div>
+            `;
+        }
+      } else {
+          delete cart[id];
+      }
+    }
+
+    $("#cartItems").html(html || "<p style='text-align:center;'>سلة المشتريات فارغة.</p>");
+    $("#totalItems").text(totalItems);
+    $("#totalPrice").text(totalPrice.toFixed(2));
+    $("#totalPriceBox").text(totalPrice.toFixed(2));
+
+    if (totalItems > 0) {
+        showDeliveryFormBtn.style.display = 'block';
+    } else {
+        showDeliveryFormBtn.style.display = 'none';
+        deliveryInfoBox.style.display = 'none';
+    }
+
+
+    $(".product-card").each(function() {
+        const cardId = $(this).data("id");
+        const qtySpan = $(this).find(".qty");
+        if (!qtySpan.is(':focus')) {
+            if (cart[cardId] && cart[cardId].qty > 0) {
+                qtySpan.text(cart[cardId].qty);
+            } else {
+                qtySpan.text(0);
+            }
+        }
+    });
+  }
+
+  function removeFromCart(id) {
+    if (cart[id]) {
+        delete cart[id];
+        updateCartDisplay();
+        highlightCart();
+    }
+  }
+
+  function filterCategory(cat, element) {
+    currentCategory = cat;
+    document.querySelectorAll('#categoryList li').forEach(li => li.classList.remove('active'));
+
+    if(element) {
+        element.classList.add('active');
+    } else {
+        const activeCatElement = document.querySelector(`#categoryList li[data-category="${cat}"]`);
+        if (activeCatElement) activeCatElement.classList.add('active');
+    }
+
+    currentPage = 1;
+    const searchTerm = $("#searchInput").val();
+    displayProducts(searchTerm);
+
+    if (categoryList.style.display === 'block') {
+        categoryList.style.maxHeight = '0';
+        categoryList.classList.remove('open');
+         setTimeout(() => {
+             categoryList.style.display = 'none';
+         }, 500);
+    }
+  }
+
+  function handleSearch() {
+    currentPage = 1;
+    const searchTerm = $("#searchInput").val();
+    displayProducts(searchTerm);
+  }
+
+  function handleSorting() {
+      currentSort = sortSelect.value;
+      currentPage = 1;
+      const searchTerm = $("#searchInput").val();
+      displayProducts(searchTerm);
+  }
+
+
+  function highlightCart() {
+    cartIndicator.classList.add('cart-highlight');
+    setTimeout(() => {
+      cartIndicator.classList.remove('cart-highlight');
+    }, 500);
+  }
+
+  function getProductById(id) {
+      if (typeof products === 'undefined') {
+          console.error("Products array is not defined.");
+          return null;
+      }
+      return products.find(p => p.id === id);
+  }
+
+  $(document).on("click", ".qty-plus", function () {
+    const card = $(this).closest('.product-card');
+    const id = card.data("id");
+    const name = card.data("name");
+    const price = parseFloat(card.data("price"));
+    let qtySpan = card.find(".qty");
+    let currentQty = parseInt(qtySpan.text()) || 0;
+    currentQty++;
+    qtySpan.text(currentQty);
+
+    cart[id] = { name, price, qty: currentQty };
+    updateCartDisplay();
+    highlightCart();
+  });
+
+  $(document).on("click", ".qty-minus", function () {
+    const card = $(this).closest('.product-card');
+    const id = card.data("id");
+    let qtySpan = card.find(".qty");
+    let currentQty = parseInt(qtySpan.text()) || 0;
+
+    currentQty = Math.max(0, currentQty - 1);
+    qtySpan.text(currentQty);
+
+    if (cart[id]) {
+        if (currentQty > 0) {
+            cart[id].qty = currentQty;
+        } else {
+            delete cart[id];
+        }
+        updateCartDisplay();
+        highlightCart();
+    }
+  });
+
+  $(document).on("blur", ".product-card .qty", function() {
+    const card = $(this).closest('.product-card');
+    const id = card.data("id");
+    const name = card.data("name");
+    const price = parseFloat(card.data("price"));
+    let enteredText = $(this).text().trim();
+    let newQty;
+
+    if ($.isNumeric(enteredText)) {
+        newQty = parseInt(enteredText);
+        if (newQty < 0) newQty = 0;
+    } else {
+        newQty = (cart[id] && cart[id].qty > 0) ? cart[id].qty : 0;
+    }
+    $(this).text(newQty);
+
+    if (newQty > 0) {
+        cart[id] = { name, price, qty: newQty };
+    } else {
+        if (cart[id]) {
+            delete cart[id];
+        }
+    }
+    updateCartDisplay();
+    highlightCart();
+  });
+
+  $(document).on("click", ".qty-plus-cart", function () {
+    const id = $(this).data("id");
+    if (cart[id]) {
+      cart[id].qty += 1;
+      updateCartDisplay();
+      highlightCart();
+    }
+  });
+
+  $(document).on("click", ".qty-minus-cart", function () {
+    const id = $(this).data("id");
+    if (cart[id]) {
+      cart[id].qty -= 1;
+      if (cart[id].qty <= 0) {
+        delete cart[id];
+      }
+      updateCartDisplay();
+      highlightCart();
+    }
+  });
+
+  $(document).on("blur", ".qty-cart-value", function() {
+    const id = parseInt($(this).data("id"));
+    const originalQty = parseInt($(this).data("current-qty"));
+    let newQtyText = $(this).text().trim();
+    let newQty;
+
+    if ($.isNumeric(newQtyText)) {
+        newQty = parseInt(newQtyText);
+        if (newQty < 0) newQty = 0;
+    } else {
+        newQty = originalQty;
+    }
+    $(this).text(newQty);
+
+    if (cart[id]) {
+        if (newQty > 0) {
+            cart[id].qty = newQty;
+        } else {
+            delete cart[id];
+        }
+    }
+    updateCartDisplay();
+  });
+
+  showDeliveryFormBtn.addEventListener('click', function() {
+      if (Object.keys(cart).length > 0) {
+          displayDeliverySummary();
+          deliveryInfoBox.style.display = 'block';
+          deliveryInfoBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+          alert('سلة المشتريات فارغة. لا يمكن المتابعة.');
+      }
+  });
+
+  function displayDeliverySummary() {
+      let summaryHtml = '<h4>ملخص الطلب:</h4>';
+      let subtotalPrice = 0;
+      let totalItemsInCart = 0;
+
+      for (let id in cart) {
+          const item = cart[id];
+          const product = getProductById(parseInt(id));
+
+          if (product && item.qty > 0) {
+              const itemTotal = item.qty * item.price;
+              subtotalPrice += itemTotal;
+              totalItemsInCart += item.qty;
+
+              summaryHtml += `
+                  <div class="delivery-summary-item">
+                      <img src="${product.image}" alt="${item.name}" class="delivery-item-image">
+                      <div class="delivery-item-details">
+                          <div class="delivery-item-name">${item.name}</div>
+                          <div class="delivery-item-qty-price">الكمية: ${item.qty} - السعر: ${itemTotal.toFixed(2)}$</div>
+                      </div>
+                  </div>
+              `;
+          }
+      }
+
+      const deliveryFee = totalItemsInCart > 3 ? 0 : 5;
+
+      summaryHtml += `
+          <div class="delivery-fees">
+              <span>رسوم التوصيل:</span>
+              <span>${deliveryFee.toFixed(2)}$</span>
+          </div>
+      `;
+
+      const finalTotal = subtotalPrice + deliveryFee;
+
+      summaryHtml += `<div class="cart-summary" style="text-align: right; margin-top: 15px;">المجموع الكلي: ${finalTotal.toFixed(2)} $</div>`;
+
+      deliverySummaryDiv.innerHTML = summaryHtml;
+  }
+
+  deliveryForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // 1. استخلاص بيانات النموذج والمجموعات كما في الكود الأصلي
+      const fullName = document.getElementById('fullName').value;
+      const address = document.getElementById('address').value;
+      const city = document.getElementById('city').value;
+      const phone = document.getElementById('phone').value;
+
+       let subtotalPrice = 0;
+       let totalItemsInCart = 0;
+       for (let id in cart) {
+           if (cart[id].qty > 0) {
+               subtotalPrice += cart[id].qty * cart[id].price;
+               totalItemsInCart += cart[id].qty;
+           }
+       }
+       const deliveryFee = totalItemsInCart > 3 ? 0 : 5;
+       const finalTotalForSubmission = subtotalPrice + deliveryFee;
+
+      // 2. تجهيز البيانات لإرسالها إلى Google Apps Script
+      const orderDetails = {
+          fullName: fullName,
+          address: address,
+          city: city,
+          phone: phone,
+          cartContents: cart, // إرسال كائن السلة كاملاً
+          subtotalPrice: subtotalPrice.toFixed(2),
+          deliveryFee: deliveryFee.toFixed(2),
+          finalTotal: finalTotalForSubmission.toFixed(2)
+      };
+
+      // ****** بداية التعديل لإرسال البيانات إلى Google Apps Script ******
+
+      // 3. إرسال البيانات إلى تطبيق ويب Google Apps Script باستخدام $.ajax
+      // هذا هو رابط تطبيق ويب Google Apps Script الذي قمت بنشره
+      const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyq7JH1keqtrmxEfqL1vBAxQf42y0cqPYAu-1zmnZri0wd6UGDgoW37gF6unZIbgMT37A/exec'; // <--- تم وضع الرابط هنا!
+
+      $.ajax({
+          url: appsScriptUrl,
+          method: 'POST', // نستخدم POST لإرسال البيانات
+          contentType: 'application/json', // نخبر السيرفر أننا نرسل JSON
+          data: JSON.stringify(orderDetails), // نحول كائن البيانات إلى سلسلة JSON
+          success: function(response) {
+              // هذا الجزء يتم تنفيذه عند استلام استجابة ناجحة (HTTP status 2xx)
+              console.log('Apps Script Response:', response); // يمكنك فحص الاستجابة هنا
+
+              // افترض أن Apps Script يرجع JSON مع حالة 'success' أو 'error'
+              if (response && response.status === 'success') {
+                  alert('تم تأكيد الطلب بنجاح وتم تسجيله في Google Sheet!');
+
+                  // مسح السلة وإعادة تعيين الواجهة بعد النجاح
+                  cart = {};
+                  updateCartDisplay();
+                  deliveryInfoBox.style.display = 'none';
+                  deliveryForm.reset();
+                  deliverySummaryDiv.innerHTML = '';
+                   // يمكنك إضافة إعادة توجيه هنا إذا أردت
+                   // window.location.href = '/thank-you.html';
+              } else {
+                   // التعامل مع استجابة من Apps Script تشير إلى خطأ (حتى لو كان status 200)
+                   alert('حدث خطأ في معالجة الطلب في Google Sheet: ' + (response.message || 'خطأ غير معروف'));
+              }
+          },
+          error: function(xhr, status, error) {
+              // هذا الجزء يتم تنفيذه عند حدوث خطأ في الاتصال أو خطأ HTTP (غير 2xx)
+              console.error('Error submitting order to Apps Script:', error);
+              console.error('Response Text:', xhr.responseText); // عرض نص الاستجابة للخطأ للمساعدة في التشخيص
+
+              let errorMessage = 'حدث خطأ أثناء إرسال الطلب. الرجاء المحاولة مرة أخرى.';
+               try {
+                   // محاولة تحليل استجابة الخطأ إذا كانت JSON
+                   const errorResponse = JSON.parse(xhr.responseText);
+                   if(errorResponse && errorResponse.message) {
+                        errorMessage = 'خطأ من السيرفر: ' + errorResponse.message;
+                   } else if (errorResponse && errorResponse.error) { // بعض أخطاء Google API تأتي بهذا الشكل
+                        errorMessage = 'خطأ من Google API: ' + JSON.stringify(errorResponse.error);
+                   }
+               } catch(e) {
+                    // إذا لم تكن الاستجابة JSON
+                    errorMessage = 'خطأ في الاتصال بالخادم: ' + (error || xhr.statusText);
+               }
+               alert(errorMessage);
+          }
+      });
+
+      // ****** نهاية التعديل ******
+
+      // لا حاجة للـ console.log و alert القديم هنا
+      // console.log('Delivery Information:', orderDetails);
+      // alert('تم إرسال معلومات التوصيل (هذا مثال تجريبي، لم يتم إرسال البيانات فعليًا).');
+
+      // يجب أن يتم مسح السلة وإعادة تعيين النموذج فقط عند التأكيد الناجح من Apps Script
+      // cart = {};
+      // updateCartDisplay();
+      // deliveryInfoBox.style.display = 'none';
+      // deliveryForm.reset();
+      // deliverySummaryDiv.innerHTML = '';
+  });
+
+  // استدعاء displayProducts لعرض المنتجات عند تحميل الصفحة
+  displayProducts();
+
+
+</script>
+</body>
+</html>
