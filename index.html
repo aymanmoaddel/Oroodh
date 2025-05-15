@@ -776,7 +776,7 @@
     if (currentPage > totalPages && totalPages > 0) {
         currentPage = totalPages;
     } else if (currentPage <= 0 && totalProducts > 0) {
-        currentPage = 1;
+         currentPage = 1;
     } else if (totalProducts === 0) {
          currentPage = 0;
     }
@@ -1186,7 +1186,7 @@
 
       // 3. إرسال البيانات إلى تطبيق ويب Google Apps Script باستخدام $.ajax
       // هذا هو رابط تطبيق ويب Google Apps Script الذي قمت بنشره
-      const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbyq7JH1keqtrmxEfqL1vBAxQf42y0cqPYAu-1zmnZri0wd6UGDgoW37gF6unZIbgMT37A/exec'; // <--- تم وضع الرابط هنا!
+      const appsScriptUrl = 'https://script.google.com/macros/s/AKfycbxDKmMJnDfQr4Zhfc5hKJnMvXFsBkSCtuWhy7bHtEJVRLBnIH7j4a-LMLg5JPsGXaKeJw/exec'; // <--- تم وضع الرابط الجديد هنا!
 
       $.ajax({
           url: appsScriptUrl,
