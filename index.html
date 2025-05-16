@@ -1,49 +1,317 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>نموذج إرسال بيانات</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج طلب شامل</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f8f8; /* لون خلفية أفتح */
+            color: #333;
+            direction: rtl;
+            text-align: right;
+        }
+
+        h1 {
+            color: #444;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        p { /* تنسيق الفقرة تحت العنوان */
+             text-align: center;
+             color: #666;
+             margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px; /* عرض أكبر قليلاً للنموذج الشامل */
+            margin: 20px auto;
+            padding: 35px;
+            border: 1px solid #e0e0e0; /* حدود أفتح */
+            border-radius: 10px; /* حواف مستديرة أكثر */
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            display: block; /* لجعل اللاصق يأخذ سطراً كاملاً */
+        }
+
+         /* نمط لحقول النص والبريد الإلكتروني والملاحظات */
+        input[type="text"],
+        input[type="email"],
+        textarea {
+             margin-bottom: 20px;
+             padding: 10px;
+             border: 1px solid #ccc;
+             border-radius: 4px;
+             font-size: 1rem;
+             width: calc(100% - 22px); /* احتساب الهامش الداخلي */
+             box-sizing: border-box;
+             display: block;
+             resize: vertical; /* السماح بتغيير حجم حقل الملاحظات عمودياً */
+        }
+
+         textarea {
+            min-height: 100px; /* ارتفاع أدنى لحقل الملاحظات */
+         }
+
+
+        /* نمط جديد لأقسام المنتجات */
+        .form-section {
+            margin-bottom: 30px; /* مسافة بعد كل قسم */
+            padding: 20px;
+            border: 1px dashed #d3d3d3; /* حدود متقطعة فاتحة */
+            border-radius: 8px;
+            background-color: #fefefe; /* خلفية فاتحة جداً للقسم */
+        }
+
+        .form-section h3 {
+            color: #0056b3; /* لون أزرق لعناوين الأقسام */
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+         /* نمط لمجموعة المنتج الفردي (لاصق + حقل الكمية) */
+        .product-item {
+            display: flex; /* استخدام Flexbox للمحاذاة */
+            align-items: center; /* محاذاة رأسية في الوسط */
+            margin-bottom: 15px; /* مسافة بين عناصر المنتج */
+        }
+
+        .product-item label {
+             margin-bottom: 0; /* إزالة الهامش السفلي الزائد */
+             margin-left: 15px; /* مسافة بين اللاصق وحقل الكمية */
+             font-weight: normal; /* جعل خط المنتج أقل سمكاً من عناوين اللاصقات الرئيسية */
+             color: #444;
+             flex-grow: 1; /* السماح للاصق بأخذ المساحة المتاحة */
+             display: inline-block; /* التأكد من أنه لا يأخذ سطرًا كاملاً */
+        }
+
+
+        /* نمط خاص لحقول الكمية لجعلها أصغر ومحاذية */
+        input[type="number"].quantity-input {
+             width: 70px; /* عرض محدد لحقل الكمية */
+             padding: 8px;
+             border: 1px solid #ccc;
+             border-radius: 4px;
+             font-size: 1rem;
+             box-sizing: border-box;
+             text-align: center; /* محاذاة الرقم في الوسط */
+             flex-shrink: 0; /* منع حقل الكمية من الانكماش */
+             margin-bottom: 0; /* إزالة الهامش السفلي الزائد */
+        }
+
+
+        button {
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+            align-self: center;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #response {
+            margin-top: 25px;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 1.2em;
+        }
+
+        .success {
+            color: green;
+            background-color: #dff0d8;
+            border: 1px solid #d6e9c6;
+        }
+
+        .error {
+            color: red;
+            background-color: #f2dede;
+            border: 1px solid #ebccd1;
+        }
+    </style>
 </head>
 <body>
-<h3>نموذج إرسال بيانات</h3>
-<form id="myForm">
-  الاسم: <input type="text" name="name" required><br><br>
-  البريد الإلكتروني: <input type="email" name="email" required><br><br>
-  الرسالة:<br>
-  <textarea name="message" rows="5" cols="30" required></textarea><br><br>
-  <button type="submit">إرسال</button>
-</form>
-<p id="response"></p>
 
-<script>
-const scriptURL = 'https://script.google.com/macros/s/AKfycbxtHQ1p7ZWhPY9yeJadXyZp7yhFAlAO5oKXnxivokG6d-u_8w28UuyaEsA5_69BOigLSA/exec';
+    <h1>نموذج طلب شامل</h1>
+    <p>املأ النموذج لتحديد طلبك وإرساله. يمكنك تحديد الكمية المطلوبة من كل منتج.</p>
 
-const form = document.getElementById('myForm');
+    <form id="myForm" action="https://script.google.com/macros/s/AKfycbyZkTKhrInrvPIArBmv0IL6u4vFpUkO0dTHXntRYI1OMpns9PvdmkgZMlzgr6RXSu57-Q/exec " method="POST">
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const formData = new FormData(form);
+        <label for="name">الاسم الكامل:</label>
+        <input type="text" id="name" name="name" required>
 
-  fetch(scriptURL, {
-    method: 'POST',
-    body: JSON.stringify({
-      name: formData.get('name'),
-      email: formData.get('email'),
-      message: formData.get('message')
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.text())
-  .then(text => {
-    document.getElementById('response').innerText = text;
-    form.reset();
-  })
-  .catch(error => {
-    document.getElementById('response').innerText = 'حدث خطأ: ' + error.message;
-  });
-});
-</script>
+        <label for="email">البريد الإلكتروني (اختياري):</label>
+        <input type="email" id="email" name="email">
+
+        <div class="form-section">
+            <h3>قسم الإلكترونيات</h3>
+            <p style="text-align: right; font-size: 0.9em; color: #777; margin-top: -15px; margin-bottom: 15px;">الرجاء تحديد الكميات المطلوبة من الأجهزة الإلكترونية.</p>
+
+            <div class="product-item">
+                 <label for="laptop_qty">لابتوب:</label>
+                 <input type="number" id="laptop_qty" name="laptop_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="smartphone_qty">هاتف ذكي:</label>
+                 <input type="number" id="smartphone_qty" name="smartphone_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="headphones_qty">سماعات رأس:</label>
+                 <input type="number" id="headphones_qty" name="headphones_qty" class="quantity-input" value="0" min="0">
+            </div>
+             </div>
+
+        <div class="form-section">
+            <h3>قسم الكتب</h3>
+             <p style="text-align: right; font-size: 0.9em; color: #777; margin-top: -15px; margin-bottom: 15px;">الرجاء تحديد الكميات المطلوبة من الكتب.</p>
+
+            <div class="product-item">
+                 <label for="novel_qty">رواية:</label>
+                 <input type="number" id="novel_qty" name="novel_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="science_book_qty">كتاب علمي:</label>
+                 <input type="number" id="science_book_qty" name="science_book_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="children_book_qty">كتاب أطفال:</label>
+                 <input type="number" id="children_book_qty" name="children_book_qty" class="quantity-input" value="0" min="0">
+            </div>
+            </div>
+
+        <div class="form-section">
+            <h3>قسم الملابس</h3>
+             <p style="text-align: right; font-size: 0.9em; color: #777; margin-top: -15px; margin-bottom: 15px;">الرجاء تحديد الكميات المطلوبة من الملابس.</p>
+
+            <div class="product-item">
+                 <label for="tshirt_qty">تي شيرت:</label>
+                 <input type="number" id="tshirt_qty" name="tshirt_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="pants_qty">بنطال:</label>
+                 <input type="number" id="pants_qty" name="pants_qty" class="quantity-input" value="0" min="0">
+            </div>
+
+            <div class="product-item">
+                 <label for="jacket_qty">سترة:</label>
+                 <input type="number" id="jacket_qty" name="jacket_qty" class="quantity-input" value="0" min="0">
+            </div>
+             <div class="product-item">
+                 <label for="dress_qty">فستان:</label>
+                 <input type="number" id="dress_qty" name="dress_qty" class="quantity-input" value="0" min="0">
+            </div>
+             </div>
+
+        <label for="notes" style="margin-top: 10px;">ملاحظات إضافية:</label>
+        <textarea id="notes" name="notes" rows="4"></textarea>
+
+
+        <button type="submit">إرسال الطلب</button>
+    </form>
+
+    <div id="response"></div>
+
+    <script>
+        // هذا الكود يستخدم JavaScript لإرسال بيانات النموذج بشكل غير متزامن (AJAX) باستخدام fetch API.
+        // هذا يمنع الصفحة من إعادة التحميل عند الإرسال ويعطي تجربة أفضل للمستخدم.
+        // لا يحتاج هذا الكود لتغيير كبير حيث أنه يجمع بيانات جميع حقول النموذج تلقائيًا.
+
+        const form = document.getElementById('myForm');
+        const responseDiv = document.getElementById('response'); // العنصر الذي سنعرض فيه الاستجابة
+
+        // إضافة مستمع لحدث 'submit' على النموذج
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // منع الإرسال الافتراضي للنموذج (الذي يسبب إعادة التحميل)
+
+            // مسح رسائل الاستجابة السابقة
+            responseDiv.textContent = '';
+            responseDiv.className = '';
+
+            // جمع بيانات النموذج
+            const formData = new FormData(form);
+            // تحويل البيانات إلى تنسيق URLSearchParams (هذا هو التنسيق الذي يتوقعه Apps Script عند استخدام e.parameter)
+            const data = new URLSearchParams(formData).toString();
+
+            // الحصول على رابط الـ Action من النموذج (الذي يحتوي على رابط Apps Script)
+            const webAppUrl = form.action;
+
+            // إرسال الطلب باستخدام fetch API
+            fetch(webAppUrl, {
+                method: 'POST', // استخدام طريقة POST
+                headers: {
+                    // تحديد نوع المحتوى المرسل
+                    'Content-Type': 'application/x-www-form-urlencoded' // هذا النوع هو الافتراضي للنماذج ويتناسب مع e.parameter
+                },
+                body: data // إرسال البيانات في جسم الطلب
+            })
+            .then(response => {
+                // فحص إذا كانت الاستجابة OK (حالة 200-299)
+                if (!response.ok) {
+                     // إذا كانت هناك مشكلة في الاستجابة HTTP (مثلاً 404, 500)، إلقاء خطأ
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                // محاولة قراءة الاستجابة كـ JSON. Apps Script يجب أن يعيد JSON بالشكل { result: 'success' } أو { result: 'error' }.
+                 // ملاحظة: إذا لم يرجع السكريبت استجابة JSON، قد تحتاج لتغيير هذا الجزء لمعالجة استجابة نصية أو HTML.
+                return response.json();
+            })
+            .then(result => {
+                // معالجة الاستجابة من Google Apps Script
+                console.log(result); // طباعة النتيجة في الكونسول للمطورين
+
+                if (result.result === 'success') {
+                    // إذا كانت النتيجة تشير إلى النجاح
+                    responseDiv.textContent = '✅ تم إرسال طلبك بنجاح!';
+                    responseDiv.className = 'success'; // تطبيق نمط النجاح
+                    form.reset(); // مسح حقول النموذج بعد الإرسال الناجح
+                     // إعادة تعيين قيم حقول الكمية إلى صفر بعد المسح
+                    document.querySelectorAll('.quantity-input').forEach(input => {
+                        input.value = '0';
+                    });
+
+                } else {
+                    // إذا كانت النتيجة تشير إلى خطأ من السكريبت
+                    responseDiv.textContent = '❌ حدث خطأ أثناء إرسال الطلب: ' + (result.message || 'خطأ غير معروف من الخادم.');
+                    responseDiv.className = 'error'; // تطبيق نمط الخطأ
+                }
+            })
+            .catch(error => {
+                // معالجة أي أخطاء تحدث أثناء عملية fetch (مثل مشاكل الشبكة أو الاستجابة غير الصالحة)
+                console.error('Error:', error);
+                responseDiv.textContent = '❌ حدث خطأ في الاتصال أو استجابة غير قابلة للقراءة: ' + error.message;
+                responseDiv.className = 'error'; // تطبيق نمط الخطأ
+            });
+        });
+    </script>
+
 </body>
 </html>
