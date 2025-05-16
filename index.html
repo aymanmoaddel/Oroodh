@@ -1,46 +1,49 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>نموذج إرسال بيانات</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    label { display: block; margin-top: 10px; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 15px; padding: 10px 15px; }
-    .message { margin-top: 15px; color: red; }
-  </style>
+<meta charset="UTF-8">
+<title>نموذج إرسال بيانات</title>
 </head>
 <body>
-  <h2>نموذج إرسال بيانات</h2>
-  <form id="dataForm">
-    <label for="name">الاسم:</label>
-    <input type="text" id="name" name="name" required>
+<h3>نموذج إرسال بيانات</h3>
+<form id="myForm">
+  الاسم: <input type="text" name="name" required><br><br>
+  البريد الإلكتروني: <input type="email" name="email" required><br><br>
+  الرسالة:<br>
+  <textarea name="message" rows="5" cols="30" required></textarea><br><br>
+  <button type="submit">إرسال</button>
+</form>
+<p id="response"></p>
 
-    <label for="email">البريد الإلكتروني:</label>
-    <input type="email" id="email" name="email" required>
+<script>
+const scriptURL = 'https://script.google.com/macros/s/AKfycbxtHQ1p7ZWhPY9yeJadXyZp7yhFAlAO5oKXnxivokG6d-u_8w28UuyaEsA5_69BOigLSA/exec';
 
-    <label for="message">الرسالة:</label>
-    <textarea id="message" name="message" rows="4" required></textarea>
+const form = document.getElementById('myForm');
 
-    <button type="submit">إرسال</button>
-    <div class="message" id="response"></div>
-  </form>
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const formData = new FormData(form);
 
-  <script>
-    document.getElementById("dataForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const responseMsg = document.getElementById("response");
-      responseMsg.textContent = "جاري الإرسال...";
-
-      fetch("https://script.google.com/macros/s/AKfycbwBYG28poSu_Z1BsoZRYKoJzPuZr_G21GXv82tC4lDbOL1tA7fa8u8AAeJkheQk55xXTQ/exec", {
-        method: "POST",
-        body: new FormData(document.getElementById("dataForm")),
-      })
-      .then(res => res.ok ? res.text() : Promise.reject("فشل الاتصال"))
-      .then(txt => responseMsg.textContent = "تم الإرسال بنجاح!")
-      .catch(err => responseMsg.textContent = "حدث خطأ: " + err);
-    });
-  </script>
+  fetch(scriptURL, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: formData.get('name'),
+      email: formData.get('email'),
+      message: formData.get('message')
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.text())
+  .then(text => {
+    document.getElementById('response').innerText = text;
+    form.reset();
+  })
+  .catch(error => {
+    document.getElementById('response').innerText = 'حدث خطأ: ' + error.message;
+  });
+});
+</script>
 </body>
 </html>
